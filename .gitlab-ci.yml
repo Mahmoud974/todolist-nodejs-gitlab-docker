@@ -1,26 +1,33 @@
+# Utilisation de l'image Docker officielle
 image: docker:latest
 
+# Démarrage du service Docker dans Docker (docker:dind)
 services:
 - docker:dind
 
+# Variables d'environnement
 variables:
   DOCKER_DRIVER: overlay2
   IMAGE_NAME: $DOCKER_HUB_USERNAME/mon-api
   COMMIT_TAG: $CI_COMMIT_SHORT_SHA
 
+# Définition des étapes (stages) du pipeline
 stages:
 - build
 - push
 
+# Login DockerHub avant chaque build
 before_script:
 - echo "$DOCKER_HUB_PASSWORD" | docker login -u "$DOCKER_HUB_USERNAME" --password-stdin
 
+# Étape de build : construction de l'image Docker
 build:
   stage: build
   script:
   - docker build -t $IMAGE_NAME:$COMMIT_TAG .
   - docker tag $IMAGE_NAME:$COMMIT_TAG $IMAGE_NAME:latest
 
+# Étape de push : envoi de l'image vers Docker Hub
 push:
   stage: push
   script:
